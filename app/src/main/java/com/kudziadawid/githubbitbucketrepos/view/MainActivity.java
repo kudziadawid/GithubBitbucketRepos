@@ -6,16 +6,21 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.kudziadawid.githubbitbucketrepos.R;
 import com.kudziadawid.githubbitbucketrepos.contract.ContractMVP;
-import com.kudziadawid.githubbitbucketrepos.model.Repo;
+import com.kudziadawid.githubbitbucketrepos.model.Repos;
 import com.kudziadawid.githubbitbucketrepos.presenter.RepoPresenter;
 
 public class MainActivity extends AppCompatActivity implements ContractMVP.View{
 
     private RepoPresenter repoPresenter;
+    private TextView textView;
+    private Repos repos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,16 +34,19 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
             return;
         }
 
-        Repo repo = new Repo();
+        textView = findViewById(R.id.textView);
+//        RequestQueue queue = Volley.newRequestQueue(this);
 
-        repoPresenter = new RepoPresenter(repo);
+        repos = new Repos();
+
+        repoPresenter = new RepoPresenter(repos, this);
         repoPresenter.attach(this);
         repoPresenter.getRepos(); //provide an adapter
     }
 
     @Override
     public void showRepos() {
-        Toast.makeText(this, "Is online: " + isOnline(), Toast.LENGTH_SHORT).show();
+        textView.setText(repos.getRepoList().get(0).getOwnerName());
     }
 
     public boolean isOnline() {
