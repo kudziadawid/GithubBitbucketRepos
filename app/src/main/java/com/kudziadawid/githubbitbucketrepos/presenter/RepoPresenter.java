@@ -14,6 +14,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.kudziadawid.githubbitbucketrepos.contract.ContractMVP;
 import com.kudziadawid.githubbitbucketrepos.model.Repos;
@@ -35,6 +36,7 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
     private final Context context;
     private JSONObject bitbucketJSON;
     private JSONObject githubJSON;
+    private JSONArray githubArray = new JSONArray();
 
     public RepoPresenter(RequestQueue queue, Context context) {
         this.context = context;
@@ -43,7 +45,7 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
 
     @Override
     public void getRepos() {
-
+        Log.d("RepoApp", "before githubnetworking");
         bitbucketNetworking();
         githubNetworking();
     }
@@ -58,12 +60,13 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
                 singleRepo.setAvatarUrl("https://1820102740.rsc.cdn77.org/png/bitbucket-6185.png");
                 repos.addToRepos(singleRepo);
             }
-            for (int i = 0; i < githubJSON.length(); i++) {
+
+            for (int i = 0; i < githubArray.length(); i++) {
                 SingleRepo singleRepo = new SingleRepo();
-                singleRepo.setOwnerName(githubJSON.getJSONObject("owner").getString("login"));
-                singleRepo.setRepoName(githubJSON.getString("name"));
-                singleRepo.setRepoDescription(githubJSON.getString("description"));
-                singleRepo.setAvatarUrl(githubJSON.getJSONObject("owner").getString("avatar_url"));
+                singleRepo.setOwnerName(githubArray.getJSONObject(i).getJSONObject("owner").getString("login"));
+                singleRepo.setRepoName(githubArray.getJSONObject(i).getString("name"));
+                singleRepo.setRepoDescription(githubArray.getJSONObject(i).getString("description"));
+                singleRepo.setAvatarUrl(githubArray.getJSONObject(i).getJSONObject("owner").getString("avatar_url"));
                 repos.addToRepos(singleRepo);
             }
         } catch (JSONException e) {
@@ -97,25 +100,49 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
     }
 
     private void githubNetworking() {
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, GITHUB_URL, null, new Response.Listener<JSONObject>() {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                (Request.Method.GET, GITHUB_URL, null, new Response.Listener<JSONArray>() {
 
                     @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            Log.d("App", response.toString());
-                            githubJSON = new JSONObject(response.toString());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    public void onResponse(JSONArray response) {
+                        Log.d("RepoApp", response.toString());
+                        githubArray = response;
                     }
                 }, new Response.ErrorListener() {
-
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO: Handle error
+                        Log.d("RepoApp", error.getMessage());
                     }
                 });
-        queue.add(jsonObjectRequest);
+        Log.d("RepoApp", "before queue");
+        queue.add(jsonArrayRequest);
+        Log.d("RepoApp", "after queue");
     }
 }
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+//                (Request.Method.GET, GITHUB_URL, null, new Response.Listener<JSONObject>() {
+//
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        try {
+//                            Log.d("RepoApp", response.toString());
+//                            githubJSON = new JSONObject(response.toString());
+//                        } catch (JSONException e) {
+//                            Log.d("RepoApp", "trycatch");
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }, new Response.ErrorListener() {
+//
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        // TODO: Handle error
+//                        Log.d("RepoApp", error.getMessage());
+//                    }
+//                });
+//        Log.d("RepoApp", "before queue");
+//        queue.add(jsonObjectRequest);
+//        Log.d("RepoApp", "after queue");
+//    }
+//}
