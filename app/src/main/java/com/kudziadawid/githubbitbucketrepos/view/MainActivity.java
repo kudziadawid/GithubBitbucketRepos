@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
     private RepoPresenter repoPresenter;
     private TextView textView;
     private Button startButton;
+    private RecyclerView reposList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
 
         textView = findViewById(R.id.textView);
         startButton = findViewById(R.id.startButton);
+        reposList = findViewById(R.id.reposList);
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -49,6 +52,13 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startButton.setVisibility(View.GONE);
+                if (!isOnline()) {
+                    Intent intent = new Intent(MainActivity.this, OfflineActivity.class);
+                    finish();
+                    startActivity(intent);
+                    return;
+                }
                 repoPresenter.injectSome();
             }
         });
@@ -57,10 +67,9 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
     @Override
     public void showRepos(String name) {
         textView.setText(name);
-
     }
 
-    public boolean isOnline() {
+    private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
