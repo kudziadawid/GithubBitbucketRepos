@@ -3,7 +3,7 @@ package com.kudziadawid.githubbitbucketrepos.contract;
 public interface ContractMVP {
 
     interface View {
-        void showRepos();
+        void showRepos(String name);
     }
 
     interface Presenter {

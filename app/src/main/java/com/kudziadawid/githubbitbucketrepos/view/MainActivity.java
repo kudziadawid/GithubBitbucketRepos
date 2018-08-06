@@ -6,6 +6,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
 
     private RepoPresenter repoPresenter;
     private TextView textView;
-    private Repos repos;
+    private Button startButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,18 +38,26 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
         }
 
         textView = findViewById(R.id.textView);
-//        RequestQueue queue = Volley.newRequestQueue(this);
+        startButton = findViewById(R.id.startButton);
 
-        repos = new Repos();
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-        repoPresenter = new RepoPresenter(repos, this);
+        repoPresenter = new RepoPresenter(queue, this);
         repoPresenter.attach(this);
         repoPresenter.getRepos(); //provide an adapter
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                repoPresenter.injectSome();
+            }
+        });
     }
 
     @Override
-    public void showRepos() {
-        textView.setText(repos.getRepoList().get(0).getOwnerName());
+    public void showRepos(String name) {
+        textView.setText(name);
+
     }
 
     public boolean isOnline() {

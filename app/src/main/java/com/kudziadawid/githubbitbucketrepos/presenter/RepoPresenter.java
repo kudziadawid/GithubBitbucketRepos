@@ -3,6 +3,7 @@ package com.kudziadawid.githubbitbucketrepos.presenter;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.util.AsyncListUtil;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -12,10 +13,14 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.kudziadawid.githubbitbucketrepos.DataCallback;
+import com.kudziadawid.githubbitbucketrepos.NetworkController;
+import com.kudziadawid.githubbitbucketrepos.VolleyCallback;
 import com.kudziadawid.githubbitbucketrepos.contract.ContractMVP;
 import com.kudziadawid.githubbitbucketrepos.model.Repos;
 import com.kudziadawid.githubbitbucketrepos.model.SingleRepo;
@@ -27,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -36,24 +42,42 @@ import cz.msebera.android.httpclient.Header;
 
 public class RepoPresenter extends BasePresenter<ContractMVP.View> implements ContractMVP.Presenter {
 
-    private static final String BITBUCKET_URL = "https://api.bitbucket.org/2.0/repositories?fields=values.name,values.owner,values.description";
+    public static final String BITBUCKET_URL = "https://api.bitbucket.org/2.0/repositories?fields=values.name,values.owner,values.description";
 
-    private Repos repos;
+    private Repos repos = new Repos();
     private RequestQueue queue;
     private final Context context;
     private JsonObjectRequest jsObjRequest;
     private JSONArray bitbucketArray;
+    private JSONObject bitbucketJSON;
 
-    public RepoPresenter(Repos repos, Context context) {
-        this.repos = repos;
+    public RepoPresenter(RequestQueue queue, Context context) {
         this.context = context;
-        this.queue = Volley.newRequestQueue(context);
+        this.queue = queue;
     }
 
     @Override
     public void getRepos() {
 
         bitbucketNetworking();
+//        bitbucketNetworking(new VolleyCallback() {
+//            @Override
+//            public void onSuccess(JSONObject response) {
+//                try {
+////                    singleRepo.setOwnerName(response.getJSONArray("values").getJSONObject(0).getJSONObject("owner").getString("username"));
+////                    Log.d("App", response.toString());
+////                    Log.d("App", response.getJSONArray("values").getJSONObject(0).getJSONObject("owner").getString("username"));
+////                    repos.addToRepos(singleRepo);
+//                    bitbucketJSON = new JSONObject(response.toString());
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+        Log.d("App", "po wywolaniu funkcji");
+//        Log.d("App", bitbucketJSON.toString());
+//        useData();
+//        Log.d("App", bitbucketJSON.toString());
 //        new GetAsync().execute();
 //        try {
 //            SingleRepo singleRepo = new SingleRepo();
@@ -63,6 +87,21 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
 //            e.printStackTrace();
 //        }
 //        view.showRepos();
+    }
+
+    public void injectSome() {
+        SingleRepo singleRepo = new SingleRepo();
+        try {
+            singleRepo.setOwnerName(bitbucketJSON.getJSONArray("values").getJSONObject(0).getJSONObject("owner").getString("username"));
+            singleRepo.setRepoName(bitbucketJSON.getJSONArray("values").getJSONObject(0).getString("name"));
+            singleRepo.setRepoDescription(bitbucketJSON.getJSONArray("values").getJSONObject(0).getString("description"));
+            singleRepo.setAvatarUrl("no avatar");
+            Log.d("App", repos.toString());
+            repos.addToRepos(singleRepo);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        view.showRepos(repos.getRepoList().get(0).getOwnerName());
     }
 
 //    private JSONArray networking() {
@@ -173,23 +212,99 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
 //            }
 //        }
 //    }
+//    public void bitbucketNetworking() {
+//
+//        RequestFuture<JSONObject> requestFuture=RequestFuture.newFuture();
+//        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
+//                BITBUCKET_URL,new JSONObject(),requestFuture,requestFuture);
+//        queue.add(request);
+//
+//        try {
+//            JSONObject object = requestFuture.get(10,TimeUnit.SECONDS);
+//            Log.d("App", "object: " + object.toString());
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        } catch (TimeoutException e) {
+//            e.printStackTrace();
+//        }
+//        Log.d("App", "endof bn");
+//    }
+//    public void bitbucketNetworking(final VolleyCallback callback) {
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+//                (Request.Method.GET, BITBUCKET_URL, null, new Response.Listener<JSONObject>() {
+//
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        Log.d("App", response.toString());
+////                        try {
+////                            bitbucketJSON = new JSONObject(response.toString());
+////                        } catch (JSONException e) {
+////                            e.printStackTrace();
+////                        }
+////                        Log.d("App", bitbucketJSON.toString());
+//                        callback.onSuccess(response);
+//                    }
+//                }, new Response.ErrorListener() {
+//
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        // TODO: Handle error
+//                    }
+//                });
+//        queue.add(jsonObjectRequest);
+//    }
     public void bitbucketNetworking() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+            (Request.Method.GET, BITBUCKET_URL, null, new Response.Listener<JSONObject>() {
 
-        RequestFuture<JSONObject> requestFuture=RequestFuture.newFuture();
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                BITBUCKET_URL,new JSONObject(),requestFuture,requestFuture);
-        queue.add(request);
+                @Override
+                public void onResponse(JSONObject response) {
+                    //Log.d("App", response.toString());
+                        try {
+                            bitbucketJSON = new JSONObject(response.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        //Log.d("App", bitbucketJSON.toString());
+                }
+            }, new Response.ErrorListener() {
 
-        try {
-            JSONObject object = requestFuture.get(10,TimeUnit.SECONDS);
-            Log.d("App", "object: " + object.toString());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
-        Log.d("App", "endof bn");
-    }
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // TODO: Handle error
+                }
+            });
+    queue.add(jsonObjectRequest);
+}
+
+//    public void fetchData(final DataCallback callback) {
+//
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+//                (Request.Method.GET, BITBUCKET_URL, null, new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        Log.d("App", response.toString());
+//
+//                        callback.onSuccess(response);
+//                    }
+//                }, new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        VolleyLog.d("App", "Error: " + error.getMessage());
+//                    }
+//                });
+//
+//        NetworkController.getInstance().addToRequestQueue(jsonObjectRequest);
+//    }
+//
+//    public void useData() {
+//        fetchData(new DataCallback() {
+//            @Override
+//            public void onSuccess(JSONObject result) {
+//                bitbucketJSON = result;
+//            }
+//        });
+//    }
 }
