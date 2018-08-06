@@ -43,22 +43,23 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
     public void getRepos() {
 
         bitbucketNetworking();
-        Log.d("App", "po wywolaniu funkcji");
     }
 
     public void injectSome() {
         SingleRepo singleRepo = new SingleRepo();
         try {
-            singleRepo.setOwnerName(bitbucketJSON.getJSONArray("values").getJSONObject(0).getJSONObject("owner").getString("username"));
-            singleRepo.setRepoName(bitbucketJSON.getJSONArray("values").getJSONObject(0).getString("name"));
-            singleRepo.setRepoDescription(bitbucketJSON.getJSONArray("values").getJSONObject(0).getString("description"));
-            singleRepo.setAvatarUrl("no avatar");
-            Log.d("App", repos.toString());
-            repos.addToRepos(singleRepo);
+            for (int i = 0; i < bitbucketJSON.getJSONArray("values").length(); i++) {
+                singleRepo.setOwnerName(bitbucketJSON.getJSONArray("values").getJSONObject(i).getJSONObject("owner").getString("username"));
+                singleRepo.setRepoName(bitbucketJSON.getJSONArray("values").getJSONObject(i).getString("name"));
+                singleRepo.setRepoDescription(bitbucketJSON.getJSONArray("values").getJSONObject(i).getString("description"));
+                singleRepo.setAvatarUrl("no avatar");
+                repos.addToRepos(singleRepo);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        view.showRepos(repos.getRepoList().get(0).getOwnerName());
+        //Log.d("App", "injs " + repos.getRepoList().size());
+        view.showRepos(repos.getRepoList());
     }
 
 

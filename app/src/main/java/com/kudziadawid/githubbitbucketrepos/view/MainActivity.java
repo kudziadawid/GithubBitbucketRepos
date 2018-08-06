@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -16,16 +17,20 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.kudziadawid.githubbitbucketrepos.R;
+import com.kudziadawid.githubbitbucketrepos.adapter.ReposListAdapter;
 import com.kudziadawid.githubbitbucketrepos.contract.ContractMVP;
 import com.kudziadawid.githubbitbucketrepos.model.Repos;
+import com.kudziadawid.githubbitbucketrepos.model.SingleRepo;
 import com.kudziadawid.githubbitbucketrepos.presenter.RepoPresenter;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ContractMVP.View{
 
     private RepoPresenter repoPresenter;
-    private TextView textView;
+    private ReposListAdapter reposListAdapter;
     private Button startButton;
-    private RecyclerView reposList;
+    private RecyclerView reposListRV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +44,18 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
             return;
         }
 
-        textView = findViewById(R.id.textView);
         startButton = findViewById(R.id.startButton);
-        reposList = findViewById(R.id.reposList);
+        reposListRV = findViewById(R.id.reposList);
+
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        reposListRV.setLayoutManager(layoutManager);
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
         repoPresenter = new RepoPresenter(queue, this);
         repoPresenter.attach(this);
-        repoPresenter.getRepos(); //provide an adapter
+        repoPresenter.getRepos();
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,8 +73,10 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
     }
 
     @Override
-    public void showRepos(String name) {
-        textView.setText(name);
+    public void showRepos(List<SingleRepo> reposList) {
+
+        reposListAdapter = new ReposListAdapter(reposList);
+        reposListRV.setAdapter(reposListAdapter);
     }
 
     private boolean isOnline() {
