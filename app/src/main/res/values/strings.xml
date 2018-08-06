@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GithubBitbucketRepos</string>
+    <string name="offline_TV">You are offline</string>
+    <string name="offline_refresh_button">Attempt to connect</string>
 </resources>
