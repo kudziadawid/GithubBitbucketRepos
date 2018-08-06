@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
                     startActivity(intent);
                     return;
                 }
-                repoPresenter.injectSome();
+                repoPresenter.injectRepos();
             }
         });
     }
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
     @Override
     public void showRepos(List<SingleRepo> reposList) {
 
-        reposListAdapter = new ReposListAdapter(reposList);
+        reposListAdapter = new ReposListAdapter(reposList, this);
         reposListRV.setAdapter(reposListAdapter);
     }
 
