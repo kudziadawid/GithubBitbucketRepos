@@ -8,18 +8,6 @@ public class SingleRepo {
     private String repoDescription;
     private boolean bitbucket;
 
-    public SingleRepo(String repoName, String ownerName, String avatarUrl, String repoDescription) {
-
-        this.repoName = repoName;
-        this.ownerName = ownerName;
-        this.avatarUrl = avatarUrl;
-        this.repoDescription = repoDescription;
-    }
-
-    public SingleRepo() {
-
-    }
-
     public String getRepoName() {
         return repoName;
     }

@@ -2,7 +2,6 @@ package com.kudziadawid.githubbitbucketrepos.view;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
@@ -10,25 +9,23 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.kudziadawid.githubbitbucketrepos.R;
 import com.kudziadawid.githubbitbucketrepos.adapter.ReposListAdapter;
 import com.kudziadawid.githubbitbucketrepos.contract.ContractMVP;
-import com.kudziadawid.githubbitbucketrepos.model.Repos;
 import com.kudziadawid.githubbitbucketrepos.model.SingleRepo;
 import com.kudziadawid.githubbitbucketrepos.presenter.RepoPresenter;
 
 import java.util.List;
+
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements ContractMVP.View{
 
@@ -37,11 +34,13 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
     private Button startButton;
     private RecyclerView reposListRV;
     private Toolbar myToolbar;
+    private boolean startClicked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Timber.plant(new Timber.DebugTree());
 
         if (!isOnline()) {
             Intent intent = new Intent(this, OfflineActivity.class);
@@ -70,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
             @Override
             public void onClick(View v) {
                 startButton.setVisibility(View.GONE);
+                startClicked = true;
                 if (!isOnline()) {
                     Intent intent = new Intent(MainActivity.this, OfflineActivity.class);
                     finish();
@@ -107,11 +107,19 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sort:
-                repoPresenter.sortunsort();
+                if (startClicked) {
+                    repoPresenter.sortOrUnsort();
+                }
                 return true;
             default:
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        repoPresenter.detach();
     }
 }

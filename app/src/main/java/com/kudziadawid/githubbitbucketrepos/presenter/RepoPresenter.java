@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import timber.log.Timber;
+
 public class RepoPresenter extends BasePresenter<ContractMVP.View> implements ContractMVP.Presenter {
 
     private static final String BITBUCKET_URL = "https://api.bitbucket.org/2.0/repositories?fields=values.name,values.owner,values.description";
@@ -70,7 +72,7 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
                 repos.addToRepos(singleRepo);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Timber.d(e, "injectRepos JSONException");
         }
         unsortedRepoList = new ArrayList<>(repos.getRepoList());
         sortRepoList();
@@ -94,7 +96,7 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
+                        Timber.d(error, "bitbucketNetworking onErrorResponse");
                     }
                 });
         queue.add(jsonObjectRequest);
@@ -111,8 +113,7 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
-                        Log.d("RepoApp", error.getMessage());
+                        Timber.d(error, "githubNetworking onErrorResponse");
                     }
                 });
         queue.add(jsonArrayRequest);
@@ -124,7 +125,7 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
         Collections.sort(sortedRepoList, singleRepoComparator);
     }
 
-    public void sortunsort() {
+    public void sortOrUnsort() {
         if (sortedListDisplayed) {
             view.showRepos(unsortedRepoList);
             sortedListDisplayed = false;
