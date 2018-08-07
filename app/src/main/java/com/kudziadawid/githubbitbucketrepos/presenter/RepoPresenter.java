@@ -1,30 +1,26 @@
 package com.kudziadawid.githubbitbucketrepos.presenter;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.util.AsyncListUtil;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.kudziadawid.githubbitbucketrepos.comparator.SingleRepoComparator;
 import com.kudziadawid.githubbitbucketrepos.contract.ContractMVP;
 import com.kudziadawid.githubbitbucketrepos.model.Repos;
 import com.kudziadawid.githubbitbucketrepos.model.SingleRepo;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class RepoPresenter extends BasePresenter<ContractMVP.View> implements ContractMVP.Presenter {
 
@@ -36,6 +32,9 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
     private final Context context;
     private JSONObject bitbucketJSON;
     private JSONArray githubArray = new JSONArray();
+    private List<SingleRepo> unsortedRepoList;
+    private List<SingleRepo> sortedRepoList;
+    private boolean sortedListDisplayed = false;
 
     public RepoPresenter(RequestQueue queue, Context context) {
         this.context = context;
@@ -55,7 +54,9 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
                 singleRepo.setOwnerName(bitbucketJSON.getJSONArray("values").getJSONObject(i).getJSONObject("owner").getString("username"));
                 singleRepo.setRepoName(bitbucketJSON.getJSONArray("values").getJSONObject(i).getString("name"));
                 singleRepo.setRepoDescription(bitbucketJSON.getJSONArray("values").getJSONObject(i).getString("description"));
-                singleRepo.setAvatarUrl("https://1820102740.rsc.cdn77.org/png/bitbucket-6185.png");
+                singleRepo.setAvatarUrl(bitbucketJSON.getJSONArray("values").getJSONObject(i).getJSONObject("owner").getJSONObject("links")
+                        .getJSONObject("avatar").getString("href"));
+                singleRepo.setBitbucket(true);
                 repos.addToRepos(singleRepo);
             }
 
@@ -70,7 +71,9 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        view.showRepos(repos.getRepoList());
+        unsortedRepoList = new ArrayList<>(repos.getRepoList());
+        sortRepoList();
+        view.showRepos(unsortedRepoList);
     }
 
 
@@ -112,5 +115,21 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
                     }
                 });
         queue.add(jsonArrayRequest);
+    }
+
+    private void sortRepoList() {
+        sortedRepoList = new ArrayList<>(unsortedRepoList);
+        SingleRepoComparator singleRepoComparator = new SingleRepoComparator();
+        Collections.sort(sortedRepoList, singleRepoComparator);
+    }
+
+    public void sortunsort() {
+        if (sortedListDisplayed) {
+            view.showRepos(unsortedRepoList);
+            sortedListDisplayed = false;
+        } else {
+            view.showRepos(sortedRepoList);
+            sortedListDisplayed = true;
+        }
     }
 }

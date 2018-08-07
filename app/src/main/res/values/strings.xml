@@ -4,4 +4,5 @@
     <string name="offline_refresh_button">Attempt to connect</string>
     <string name="start_button">Load repositories</string>
     <string name="avatar_content_description">Avatar image</string>
+    <string name="action_sort">Sort/undo sort</string>
 </resources>

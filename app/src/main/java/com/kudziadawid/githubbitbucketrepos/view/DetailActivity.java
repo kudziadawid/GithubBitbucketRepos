@@ -1,6 +1,7 @@
 package com.kudziadawid.githubbitbucketrepos.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -31,6 +32,12 @@ public class DetailActivity extends AppCompatActivity {
         ownerNameTV.setText(intent.getStringExtra("ownerName"));
         repoDescriptionTV.setText(intent.getStringExtra("repoDescription"));
         Glide.with(this).load(intent.getStringExtra("avatarUrl")).into(avatarImage);
+
+        if (intent.getBooleanExtra("isBitbucket", false)) {
+            repoNameTV.setTextColor(Color.RED);
+            ownerNameTV.setTextColor(Color.RED);
+            repoDescriptionTV.setTextColor(Color.RED);
+        }
     }
 
     @Override

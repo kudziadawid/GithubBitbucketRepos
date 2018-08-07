@@ -6,6 +6,7 @@ public class SingleRepo {
     private String ownerName;
     private String avatarUrl;
     private String repoDescription;
+    private boolean bitbucket;
 
     public SingleRepo(String repoName, String ownerName, String avatarUrl, String repoDescription) {
 
@@ -49,5 +50,13 @@ public class SingleRepo {
 
     public void setRepoDescription(String repoDescription) {
         this.repoDescription = repoDescription;
+    }
+
+    public boolean isBitbucket() {
+        return bitbucket;
+    }
+
+    public void setBitbucket(boolean bitbucket) {
+        this.bitbucket = bitbucket;
     }
 }

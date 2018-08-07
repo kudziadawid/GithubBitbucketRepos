@@ -2,8 +2,10 @@ package com.kudziadawid.githubbitbucketrepos.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +63,7 @@ public class ReposListAdapter extends RecyclerView.Adapter {
                 intent.putExtra("ownerName", reposList.get(itemPosition).getOwnerName());
                 intent.putExtra("avatarUrl", reposList.get(itemPosition).getAvatarUrl());
                 intent.putExtra("repoDescription", reposList.get(itemPosition).getRepoDescription());
+                intent.putExtra("isBitbucket", reposList.get(itemPosition).isBitbucket());
                 activity.startActivity(intent);
             }
         });
@@ -74,6 +77,11 @@ public class ReposListAdapter extends RecyclerView.Adapter {
         ((ReposViewHolder) holder).ownerNameTV.setText(reposList.get(position).getOwnerName());
         ((ReposViewHolder) holder).repoNameTV.setText(reposList.get(position).getRepoName());
         Glide.with(activity).load(reposList.get(position).getAvatarUrl()).into(((ReposViewHolder) holder).avatarImage);
+
+        if (reposList.get(position).isBitbucket()) {
+            ((ReposViewHolder) holder).ownerNameTV.setTextColor(Color.RED);
+            ((ReposViewHolder) holder).repoNameTV.setTextColor(Color.RED);
+        }
     }
 
     @Override
