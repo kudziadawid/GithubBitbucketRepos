@@ -81,6 +81,9 @@ public class ReposListAdapter extends RecyclerView.Adapter {
         if (reposList.get(position).isBitbucket()) {
             ((ReposViewHolder) holder).ownerNameTV.setTextColor(Color.RED);
             ((ReposViewHolder) holder).repoNameTV.setTextColor(Color.RED);
+        } else {
+            ((ReposViewHolder) holder).ownerNameTV.setTextColor(Color.GRAY);
+            ((ReposViewHolder) holder).repoNameTV.setTextColor(Color.GRAY);
         }
     }
 

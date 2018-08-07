@@ -66,6 +66,7 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
                 singleRepo.setRepoName(githubArray.getJSONObject(i).getString("name"));
                 singleRepo.setRepoDescription(githubArray.getJSONObject(i).getString("description"));
                 singleRepo.setAvatarUrl(githubArray.getJSONObject(i).getJSONObject("owner").getString("avatar_url"));
+                singleRepo.setBitbucket(false);
                 repos.addToRepos(singleRepo);
             }
         } catch (JSONException e) {
