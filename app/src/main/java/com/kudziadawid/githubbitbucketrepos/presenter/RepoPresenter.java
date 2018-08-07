@@ -35,7 +35,6 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
     private RequestQueue queue;
     private final Context context;
     private JSONObject bitbucketJSON;
-    private JSONObject githubJSON;
     private JSONArray githubArray = new JSONArray();
 
     public RepoPresenter(RequestQueue queue, Context context) {
@@ -45,7 +44,6 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
 
     @Override
     public void getRepos() {
-        Log.d("RepoApp", "before githubnetworking");
         bitbucketNetworking();
         githubNetworking();
     }
@@ -72,7 +70,6 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        //Log.d("App", "injs " + repos.getRepoList().size());
         view.showRepos(repos.getRepoList());
     }
 
@@ -105,7 +102,6 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
 
                     @Override
                     public void onResponse(JSONArray response) {
-                        Log.d("RepoApp", response.toString());
                         githubArray = response;
                     }
                 }, new Response.ErrorListener() {
@@ -115,34 +111,6 @@ public class RepoPresenter extends BasePresenter<ContractMVP.View> implements Co
                         Log.d("RepoApp", error.getMessage());
                     }
                 });
-        Log.d("RepoApp", "before queue");
         queue.add(jsonArrayRequest);
-        Log.d("RepoApp", "after queue");
     }
 }
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                (Request.Method.GET, GITHUB_URL, null, new Response.Listener<JSONObject>() {
-//
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                        try {
-//                            Log.d("RepoApp", response.toString());
-//                            githubJSON = new JSONObject(response.toString());
-//                        } catch (JSONException e) {
-//                            Log.d("RepoApp", "trycatch");
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }, new Response.ErrorListener() {
-//
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        // TODO: Handle error
-//                        Log.d("RepoApp", error.getMessage());
-//                    }
-//                });
-//        Log.d("RepoApp", "before queue");
-//        queue.add(jsonObjectRequest);
-//        Log.d("RepoApp", "after queue");
-//    }
-//}

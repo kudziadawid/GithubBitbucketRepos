@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements ContractMVP.View{
     @Override
     public void showRepos(List<SingleRepo> reposList) {
 
-        reposListAdapter = new ReposListAdapter(reposList, this);
+        reposListAdapter = new ReposListAdapter(reposList, this, reposListRV);
         reposListRV.setAdapter(reposListAdapter);
     }
 
